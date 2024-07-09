@@ -1,8 +1,11 @@
-name: ci
+name: build-push-docker-image
 
 on:
   push:
     branches: [ "dev", "main" ]
+
+env:
+  REPO_NAME: raggie
 
 jobs:
   docker:
@@ -25,4 +28,4 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: sinka97dev/raggie:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:latest
