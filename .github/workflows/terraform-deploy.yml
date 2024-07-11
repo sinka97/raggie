@@ -3,7 +3,7 @@ name: terraform-deploy
 on:
   push:
     branches:
-      -"prod-deployment"
+      - "prod-deployment"
 
 permissions:
   id-token: write # This is required for requesting the JWT.
