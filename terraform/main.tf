@@ -18,7 +18,7 @@ resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
 
   tags = {
-    Name = "terraform-vpc"
+    Name = "raggie-vpc"
   }
 }
 
@@ -27,7 +27,7 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "terraform-igw"
+    Name = "raggie-igw"
   }
 }
 
@@ -41,7 +41,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "terraform-public-rt"
+    Name = "raggie-public-rt"
   }
 }
 
@@ -52,7 +52,7 @@ resource "aws_subnet" "public" {
   availability_zone = "us-east-1a" # Update with an available AZ in your region
 
   tags = {
-    Name = "terraform-public-subnet"
+    Name = "raggie-public-subnet"
   }
 }
 
@@ -64,7 +64,7 @@ resource "aws_route_table_association" "public" {
 
 # Create a security group
 resource "aws_security_group" "instance_sg" {
-  name        = "terraform-instance-sg"
+  name        = "raggie-instance-sg"
   description = "Allow SSH and HTTP inbound traffic"
   vpc_id      = aws_vpc.main.id
 
@@ -91,13 +91,13 @@ resource "aws_security_group" "instance_sg" {
 }
 
 # Launch an EC2 instance in the subnet
-resource "aws_instance" "example" {
-  ami                    = "ami-0c55b159cbfafe1f0" # Replace with a valid AMI ID in your region
+resource "aws_instance" "raggie-test" {
+  ami                    = "ami-0b72821e2f351e396"
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.instance_sg.id]
 
   tags = {
-    Name = "terraform-example"
+    Name = "raggie-test"
   }
 }
