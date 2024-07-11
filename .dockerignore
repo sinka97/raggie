@@ -1,0 +1,8 @@
+# ./.dockerignore
+# Ignore all files when COPY is run
+*
+
+# Un-ignore only these specific file so that when COPY
+# is run only these specific files are copied over
+!src/*
+!requirements.txt
