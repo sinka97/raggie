@@ -38,7 +38,7 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -input=false
 
-        # On push to "prod-deployment"", deploy the Terraform infrastructure
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/prod-deployment"' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
+      #   # On push to "prod-deployment"", deploy the Terraform infrastructure
+      # - name: Terraform Apply
+      #   if: github.ref == 'refs/heads/prod-deployment"' && github.event_name == 'push'
+      #   run: terraform apply -auto-approve -input=false
