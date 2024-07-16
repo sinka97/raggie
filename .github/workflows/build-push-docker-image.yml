@@ -55,3 +55,15 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Simulate ECR image scan with vulnerability scanner
+        continue-on-error: true
+        run: |
+          echo "Instead of running an actual vulnerability scanner, print out debug info"
+          echo github actor: ${{ github.actor }}
+          echo github actor id: ${{ github.actor_id }}
+          echo branch or tag: ${{ github.ref_type }}
+          echo branch or tag name: ${{ github.ref_name }}
+          echo ECR_REPOSITORY_NAME: ${{ vars.ECR_REPOSITORY_NAME }}
+          echo GITHUB_WORKSPACE: $GITHUB_WORKSPACE
+          echo image tag: ${{ steps.build-image.outputs.image }}
