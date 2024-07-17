@@ -58,19 +58,23 @@ resource "aws_volume_attachment" "raggie_ebs_attachment" {
   instance_id = aws_instance.raggie-chromadb.id
 }
 
+# ECS Resources
+resource "aws_ecs_cluster" "raggie_cluster" {
+  name = var.ecs_cluster_name
+}
 
-resource "aws_ecs_task_definition" "my_task" {
-  family                   = "my-task-family"
+resource "aws_ecs_task_definition" "raggie_ecs_task" {
+  family                   = "raggie-task-family"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn       = aws_iam_role.ecs_agent.arn
   cpu                      = var.cpu
   memory                   = var.memory
 
   container_definitions = jsonencode([
     {
       name      = var.container_name
-      image     = "${aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.ecr_repo_name}:latest"
+      image     = "021041863094.dkr.ecr.us-east-1.amazonaws.com/raggie:latest"
       essential = true
       portMappings = [
         {
@@ -81,21 +85,67 @@ resource "aws_ecs_task_definition" "my_task" {
       environment = [
         {
           name  = "DB_HOST"
-          value = aws_instance.db_instance.private_ip
-        },
-        {
-          name  = "DB_NAME"
-          value = var.db_name
-        },
-        {
-          name  = "DB_USERNAME"
-          value = var.db_username
-        },
-        {
-          name  = "DB_PASSWORD"
-          value = var.db_password
+          value = aws_instance.raggie-chromadb.private_ip
         }
       ]
     }
   ])
+}
+
+resource "aws_lb" "raggie_alb" {
+  name               = "raggie-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.raggie_ecs_sg.id]
+  subnets            = [aws_subnet.raggie_public_subnet.id,aws_subnet.raggie_public_subnet_b.id]
+}
+
+resource "aws_lb_target_group" "raggie_target_group" {
+  name     = "raggie-target-group"
+  port     = var.container_port
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.raggie_vpc.id
+  target_type = "ip"
+
+  health_check {
+    path                = "/"
+    protocol            = "HTTP"
+    timeout             = 5
+    interval            = 30
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    matcher             = "200-399"
+  }
+}
+
+resource "aws_lb_listener" "raggie_listener" {
+  load_balancer_arn = aws_lb.raggie_alb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.raggie_target_group.arn
+  }
+}
+
+resource "aws_ecs_service" "raggie_ecs_service" {
+  name            = var.ecs_service_name
+  cluster         = aws_ecs_cluster.raggie_cluster.id
+  task_definition = aws_ecs_task_definition.raggie_ecs_task.arn
+  desired_count   = 2         # Number of tasks to run
+  launch_type     = "FARGATE" # Or "EC2" if using EC2
+
+  network_configuration {
+    subnets          = [aws_subnet.raggie_public_subnet.id,aws_subnet.raggie_public_subnet_b.id]
+    security_groups  = [aws_security_group.raggie_ecs_sg.id]
+    assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.raggie_target_group.arn
+    container_name   = var.container_name
+    container_port   = var.container_port
+  }
+
 }

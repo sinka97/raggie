@@ -1,8 +1,7 @@
-
 output "chromadb_endpoint" {
   value = aws_instance.raggie-chromadb.private_ip
 }
 
-output "ecr_repository_worker_endpoint" {
-  value = aws_ecr_repository.worker.repository_url
+output "ecs_service_load_balancer_dns_name" {
+  value = aws_lb.raggie_alb.dns_name
 }

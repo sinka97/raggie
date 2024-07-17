@@ -24,9 +24,20 @@ resource "aws_subnet" "raggie_public_subnet" {
 
 }
 
-resource "aws_subnet" "raggie_private_subnet" {
+resource "aws_subnet" "raggie_public_subnet_b" {
   vpc_id            = aws_vpc.raggie_vpc.id
   cidr_block        = "10.0.2.0/24"
+  availability_zone = "us-east-1b"
+
+  tags = {
+    Name = "Raggie IGW"
+  }
+
+}
+
+resource "aws_subnet" "raggie_private_subnet" {
+  vpc_id            = aws_vpc.raggie_vpc.id
+  cidr_block        = "10.0.3.0/24"
   availability_zone = "us-east-1a"
 
   tags = {
@@ -54,8 +65,8 @@ resource "aws_route_table_association" "raggie_route_table_association" {
   route_table_id = aws_route_table.raggie_rt.id
 }
 
-resource "aws_security_group" "ecs_service_sg" {
-  name        = "ecs-service-sg"
+resource "aws_security_group" "raggie_ecs_sg" {
+  name        = "raggie-ecs-sg"
   description = "Security group for ECS service"
   vpc_id      = aws_vpc.raggie_vpc.id
 
