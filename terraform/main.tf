@@ -1,103 +1,99 @@
-terraform {
-  backend "s3" {
-    bucket         = "raggie-tf"
-    key            = "terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "raggie-tf-state-lock"
-    encrypt        = true
-  }
-}
-
-
-provider "aws" {
-  region = "us-east-1" # Update with your desired AWS region
-}
-
-# Create VPC
-resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
-
+# Launch an ebs volumn in the available zone
+resource "aws_ebs_volume" "raggie_ebs_volume" {
+  availability_zone = "us-east-1a"
+  size              = 20 # Specify the size of the volume in GiB
   tags = {
-    Name = "raggie-vpc"
+    Name = "raggie-ebs-volume"
   }
 }
 
-# Create an internet gateway for the VPC
-resource "aws_internet_gateway" "gw" {
-  vpc_id = aws_vpc.main.id
+# Launch an EC2 instance in the subnet to run chromadb
+resource "aws_instance" "raggie_chromadb" {
+  ami                         = "ami-0b72821e2f351e396"
+  instance_type               = "t3.micro"
+  subnet_id                   = aws_subnet.raggie_private_subnet.id
+  vpc_security_group_ids      = [aws_security_group.raggie_chromadb_sg.id]
+  availability_zone           = "us-east-1a"
+  ebs_block_device {
+    device_name = "/dev/sdh"
+    volume_size = 30
+  }
+  user_data                   = <<-EOF
+    #!/bin/bash
 
+    # Create a directory to mount the volume
+    sudo mkdir -p /mnt/chroma-storage
+    
+    # Check if the volume is already formatted
+    if ! file -s /dev/sdh | grep -q ext4; then
+      # Format the EBS volume
+      sudo mkfs -t ext4 /dev/sdh
+    fi
+    
+    # Mount the volume
+    sudo mount /dev/sdh /mnt/chroma-storage
+
+    # Install docker
+    sudo yum update -y
+    sudo yum install docker -y
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    sudo usermod -a -G docker ec2-user
+    newgrp docker
+
+    # Run the Docker container
+    docker run \
+    -p 8000:8000 \
+    -v /mnt/chroma-storage:/chroma/chroma \
+    chromadb/chroma
+  EOF
+  user_data_replace_on_change = true
   tags = {
-    Name = "raggie-igw"
+    Name = "Raggie_ChromaDB_Instance"
   }
 }
 
-# Create a route table for public subnet
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
+resource "aws_instance" "raggie_streamlit" {
+  ami                  = "ami-0b72821e2f351e396"
+  instance_type        = "m5.xlarge"
+  subnet_id            = aws_subnet.raggie_public_subnet.id
+  iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
+  security_groups      = [aws_security_group.raggie_streamlit_sg.id]
+  availability_zone    = "us-east-1a"
+  ebs_block_device {
+    device_name = "/dev/sdg"
+    volume_size = 20
   }
-
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo yum update -y
+              sudo yum install docker -y
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -a -G docker ec2-user
+              newgrp docker
+              aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 021041863094.dkr.ecr.us-east-1.amazonaws.com
+              docker image pull 021041863094.dkr.ecr.us-east-1.amazonaws.com/raggie:latest
+              docker run -p 8501:8501 -d 021041863094.dkr.ecr.us-east-1.amazonaws.com/raggie:latest
+              EOF
+  user_data_replace_on_change = true
   tags = {
-    Name = "raggie-public-rt"
+    Name = "Raggie_Streamlit_Instance"
   }
+  depends_on = [
+    aws_instance.raggie_chromadb,
+    aws_security_group.raggie_streamlit_sg,
+    aws_iam_instance_profile.ec2_instance_profile
+  ]
 }
 
-# Create a subnet within the VPC
-resource "aws_subnet" "public" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a" # Update with an available AZ in your region
+resource "aws_eip" "raggie_streamlit_eip" {
+  instance = aws_instance.raggie_streamlit.id
+  domain   = "vpc"
 
-  tags = {
-    Name = "raggie-public-subnet"
-  }
-}
+  depends_on = [
+    aws_internet_gateway.raggie_internet_gateway
+  ]
 
-# Associate the route table with the subnet
-resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
-  route_table_id = aws_route_table.public.id
-}
-
-# Create a security group
-resource "aws_security_group" "instance_sg" {
-  name        = "raggie-instance-sg"
-  description = "Allow SSH and HTTP inbound traffic"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# Launch an EC2 instance in the subnet
-resource "aws_instance" "raggie-test" {
-  ami                    = "ami-0b72821e2f351e396"
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.instance_sg.id]
-
-  tags = {
-    Name = "raggie-test"
-  }
 }
