@@ -1,6 +1,5 @@
 import os
 from langchain_huggingface import HuggingFaceEmbeddings
-#from langchain_anthropic import ChatAnthropic
 from langchain_groq import ChatGroq
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_chroma import Chroma
@@ -36,8 +35,8 @@ text_splitter = SemanticChunker(hf)
 
 if not os.path.exists("chroma_db"):
     docs = []
-    pdfData1 = PyMuPDFLoader('./LTA_AR2223.pdf', extract_images=True).load()
-    pdfData2 = PyMuPDFLoader('./smartmobility2030.pdf', extract_images=True).load()
+    pdfData1 = PyMuPDFLoader('./LTA_AR2223_3.pdf', extract_images=True).load()
+    pdfData2 = PyMuPDFLoader('./LTA_AR2223_4.pdf', extract_images=True).load()
     docs.extend(pdfData1)
     docs.extend(pdfData2)
     splits = text_splitter.split_documents(docs)
