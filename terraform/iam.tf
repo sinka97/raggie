@@ -22,10 +22,20 @@ resource "aws_iam_policy" "ecr_access_policy" {
       {
         Effect = "Allow",
         Action = [
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
           "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability"
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:GetRepositoryPolicy",
+          "ecr:DescribeRepositories",
+          "ecr:ListImages",
+          "ecr:DescribeImages",
+          "ecr:BatchGetImage",
+          "ecr:GetLifecyclePolicy",
+          "ecr:GetLifecyclePolicyPreview",
+          "ecr:ListTagsForResource",
+          "ecr:DescribeImageScanFindings",
+          "ec2:DescribeInstances",
+          "ec2-instance-connect:SendSSHPublicKey"
         ],
         Resource = "*"
       }
