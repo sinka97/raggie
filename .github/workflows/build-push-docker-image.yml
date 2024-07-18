@@ -70,6 +70,7 @@ jobs:
           echo ECR_REPOSITORY_NAME: ${{ vars.ECR_REPOSITORY_NAME }}
           echo GITHUB_WORKSPACE: $GITHUB_WORKSPACE
           echo image tag: ${{ steps.build-image.outputs.image }}
+          
   tf-deploy:
     needs: build-image-push-to-ecr
     runs-on: ubuntu-latest
