@@ -13,5 +13,7 @@ RUN apt-get update && \
 # Copy application files
 COPY src/ /app/src
 
+EXPOSE 8501
+
 # Set the entrypoint to run Streamlit with the specified app
 ENTRYPOINT ["streamlit", "run", "src/1_🏠_Home.py"]

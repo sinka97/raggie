@@ -11,6 +11,11 @@ resource "aws_vpc" "raggie_vpc" {
 
 resource "aws_internet_gateway" "raggie_internet_gateway" {
   vpc_id = aws_vpc.raggie_vpc.id
+
+  tags = {
+    Name = "Raggie IGW"
+  }
+
 }
 
 resource "aws_subnet" "raggie_public_subnet" {
@@ -19,25 +24,14 @@ resource "aws_subnet" "raggie_public_subnet" {
   availability_zone = "us-east-1a"
 
   tags = {
-    Name = "Raggie IGW"
-  }
-
-}
-
-resource "aws_subnet" "raggie_public_subnet_b" {
-  vpc_id            = aws_vpc.raggie_vpc.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-east-1b"
-
-  tags = {
-    Name = "Raggie IGW"
+    Name = "Raggie Public Subnet"
   }
 
 }
 
 resource "aws_subnet" "raggie_private_subnet" {
   vpc_id            = aws_vpc.raggie_vpc.id
-  cidr_block        = "10.0.3.0/24"
+  cidr_block        = "10.0.2.0/24"
   availability_zone = "us-east-1a"
 
   tags = {
@@ -65,16 +59,30 @@ resource "aws_route_table_association" "raggie_route_table_association" {
   route_table_id = aws_route_table.raggie_rt.id
 }
 
-resource "aws_security_group" "raggie_ecs_sg" {
-  name        = "raggie-ecs-sg"
+resource "aws_security_group" "raggie_streamlit_sg" {
+  name        = "raggie_streamlit_sg"
   description = "Security group for ECS service"
   vpc_id      = aws_vpc.raggie_vpc.id
 
   ingress {
-    from_port   = var.container_port
-    to_port     = var.container_port
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8501
+    to_port     = 8501
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.raggie_vpc.cidr_block]
   }
 
   egress {
@@ -93,7 +101,7 @@ resource "aws_security_group" "raggie_chromadb_sg" {
     from_port       = 8000
     to_port         = 8000
     cidr_blocks     = [aws_subnet.raggie_public_subnet.cidr_block]
-    security_groups = [aws_security_group.raggie_ecs_sg.id]
+    security_groups = [aws_security_group.raggie_streamlit_sg.id]
   }
 
   egress {
