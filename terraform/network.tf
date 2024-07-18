@@ -82,7 +82,7 @@ resource "aws_security_group" "raggie_streamlit_sg" {
     from_port   = 8501
     to_port     = 8501
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.raggie_vpc.cidr_block]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
