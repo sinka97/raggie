@@ -36,11 +36,10 @@ text_splitter = SemanticChunker(hf)
 
 if not os.path.exists("chroma_db"):
     docs = []
-    # pdfData1 = PyMuPDFLoader('C:/Users/andrewsiew/Desktop/data/Monthly_Security_Report_March_24.pdf', extract_images=True).load()
-    # pdfData2 = PyMuPDFLoader('C:/Users/andrewsiew/Desktop/data/Monthly_Security_Report_Feb_24.pdf', extract_images=True).load()
-    # docs.extend(pdfData1)
-    # docs.extend(pdfData2)
-    docs = 'abcedfghijklmnoqrstuvwxyz'
+    pdfData1 = PyMuPDFLoader('./LTA_AR2223.pdf', extract_images=True).load()
+    pdfData2 = PyMuPDFLoader('./smartmobility2030.pdf', extract_images=True).load()
+    docs.extend(pdfData1)
+    docs.extend(pdfData2)
     splits = text_splitter.split_documents(docs)
     db = Chroma.from_documents(splits, hf, persist_directory="chroma_db", collection_name="Monthly_Security_Reports")
 else:
