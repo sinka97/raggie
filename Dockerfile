@@ -7,8 +7,8 @@ COPY requirements.txt /app
 # Install dependencies
 RUN apt-get update && \
     apt-get install curl --no-install-recommends -y && \
-    sqlite3 \
-    libsqlite3-dev \
+    apt-get install sqlite3 --no-install-recommends -y && \
+    apt-get install libsqlite3-dev --no-install-recommends -y && \
     pip install --upgrade pip && \
     pip install -r requirements.txt
 
