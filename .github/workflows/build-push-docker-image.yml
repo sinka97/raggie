@@ -75,11 +75,6 @@ jobs:
     needs: build-image-push-to-ecr
     runs-on: ubuntu-latest
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          egress-policy: audit
-
       - name: Checkout Repository
         uses: actions/checkout@v3
 

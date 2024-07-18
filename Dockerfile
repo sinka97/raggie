@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.10.11
 
 # Set working directory and copy files
 WORKDIR /app
@@ -7,6 +7,8 @@ COPY requirements.txt /app
 # Install dependencies
 RUN apt-get update && \
     apt-get install curl --no-install-recommends -y && \
+    sqlite3 \
+    libsqlite3-dev \
     pip install --upgrade pip && \
     pip install -r requirements.txt
 
