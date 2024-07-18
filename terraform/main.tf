@@ -12,9 +12,10 @@ resource "aws_instance" "raggie_chromadb" {
   ami                    = "ami-0b72821e2f351e396"
   instance_type          = "t3.micro"
   ebs_optimized          = true
-  subnet_id              = aws_subnet.raggie_private_subnet.id
+  subnet_id              = aws_subnet.raggie_public_subnet.id
   vpc_security_group_ids = [aws_security_group.raggie_chromadb_sg.id]
   availability_zone      = "us-east-1a"
+  associate_public_ip_address = true
   ebs_block_device {
     device_name           = "/dev/sdh"
     volume_type           = "gp3"

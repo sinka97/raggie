@@ -1,5 +1,5 @@
 output "chromadb_endpoint" {
-  value = aws_instance.raggie_chromadb.private_ip
+  value = aws_instance.raggie_chromadb.public_ip
 }
 
 output "raggie_endpoint" {
