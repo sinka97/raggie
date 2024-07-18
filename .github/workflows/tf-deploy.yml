@@ -1,0 +1,46 @@
+name: deploy-infrastructure-using-terraform
+
+on:
+  workflow_run:
+    workflows: ["build-push-docker-image"]
+    branches: [main]
+    types:
+        - completed
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  REPO_NAME: raggie
+
+jobs:
+    tf-deploy:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Repository
+            uses: actions/checkout@v2
+    
+          - name: Configure aws credentials
+            uses: aws-actions/configure-aws-credentials@v2
+            with:
+              role-to-assume: ${{ vars.TF_AWS_ROLE_TO_ASSUME }}
+              aws-region: ${{ vars.AWS_REGION }}
+    
+          - name: Setup Terraform
+            uses: hashicorp/setup-terraform@v2
+            with:
+              terraform_version: 1.4.6
+    
+          - name: Terraform Init
+            working-directory: ./terraform
+            run: terraform init
+    
+          - name: Terraform Format
+            working-directory: ./terraform
+    
+            run: terraform fmt -check
+    
+          - name: Terraform Plan
+            working-directory: ./terraform
+            run: terraform plan -input=false
