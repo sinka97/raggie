@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.10.11
 
 # Set working directory and copy files
 WORKDIR /app
