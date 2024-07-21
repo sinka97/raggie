@@ -39,10 +39,10 @@ jobs:
 
       - name: Create .env file within app folder
         run: |
-          echo "GOOGLE_CSE_ID='${{ secrets.GOOGLE_CSE_ID }}'" > src/.env
-          echo "GOOGLE_API_KEY='${{ secrets.GOOGLE_API_KEY }}'" > src/.env
-          echo "ANTHROPIC_API_KEY='${{ secrets.ANTHROPIC_API_KEY }}'" > src/.env
-          echo "LLAMA_CLOUD_API_KEY='${{ secrets.LLAMA_CLOUD_API_KEY }}'" > src/.env
+          echo "GOOGLE_CSE_ID='${{ secrets.GOOGLE_CSE_ID }}'" > ./src/.env
+          echo "GOOGLE_API_KEY='${{ secrets.GOOGLE_API_KEY }}'" > ./src/.env
+          echo "ANTHROPIC_API_KEY='${{ secrets.ANTHROPIC_API_KEY }}'" > ./src/.env
+          echo "LLAMA_CLOUD_API_KEY='${{ secrets.LLAMA_CLOUD_API_KEY }}'" > ./src/.env
 
       - name: Build, tag, and push image to AWS ECR
         id: build-image
