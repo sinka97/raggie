@@ -6,3 +6,4 @@
 # is run only these specific files are copied over
 !src/*
 !requirements.txt
+!src/.env
