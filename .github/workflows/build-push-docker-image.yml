@@ -37,13 +37,6 @@ jobs:
           echo "Extracted version: $version"
           echo "PROJECT_VERSION=$version" >> $GITHUB_OUTPUT
 
-      - name: Create .env file within app folder
-        run: |
-          echo "GOOGLE_CSE_ID='${{ steps.get-project-version.outputs.PROJECT_VERSION }}'" > src/.env
-          echo "GOOGLE_API_KEY='${{ secrets.GOOGLE_CSE_ID }}'" > src/.env
-          echo "ANTHROPIC_API_KEY='${{ secrets.GOOGLE_API_KEY }}'" > src/.env
-          echo "LLAMA_CLOUD_API_KEY='${{ secrets.LLAMA_CLOUD_API_KEY }}'" > src/.env
-
       - name: Build, tag, and push image to AWS ECR
         id: build-image
         env:

@@ -1,7 +1,26 @@
 # ./.dockerignore
 # Ignore all files when COPY is run
-./terraform
-./images
+
+# Git
+.git
+.gitignore
+.gitattributes
+.github/
+
+# Docker
+Dockerfile
+.docker
+.dockerignore
+
+# Virtual environment
+venv/
+
+# Project Specific
+terraform/
+images/
+
+# VS Code
+.vscode/
 
 # Un-ignore only these specific file so that when COPY
 # is run only these specific files are copied over
