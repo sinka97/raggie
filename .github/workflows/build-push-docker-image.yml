@@ -39,10 +39,10 @@ jobs:
 
       - name: Create .env file within app folder
         run: |
-          echo "GOOGLE_CSE_ID='${{ secrets.GOOGLE_CSE_ID }}'" > ./src/.env
-          echo "GOOGLE_API_KEY='${{ secrets.GOOGLE_API_KEY }}'" > ./src/.env
-          echo "ANTHROPIC_API_KEY='${{ secrets.ANTHROPIC_API_KEY }}'" > ./src/.env
-          echo "LLAMA_CLOUD_API_KEY='${{ secrets.LLAMA_CLOUD_API_KEY }}'" > ./src/.env
+          echo "GOOGLE_CSE_ID='${{ steps.get-project-version.outputs.PROJECT_VERSION }}'" > src/.env
+          echo "GOOGLE_API_KEY='${{ secrets.GOOGLE_CSE_ID }}'" > src/.env
+          echo "ANTHROPIC_API_KEY='${{ secrets.GOOGLE_API_KEY }}'" > src/.env
+          echo "LLAMA_CLOUD_API_KEY='${{ secrets.LLAMA_CLOUD_API_KEY }}'" > src/.env
 
       - name: Build, tag, and push image to AWS ECR
         id: build-image
@@ -51,6 +51,9 @@ jobs:
           ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
           ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_NAME }}
           IMAGE_TAG: ${{ steps.get-project-version.outputs.PROJECT_VERSION }}
+          GOOGLE_CSE_ID: ${{ secrets.GOOGLE_CSE_ID }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          LLAMA_CLOUD_API_KEY: ${{ secrets.LLAMA_CLOUD_API_KEY }}
         run: |
           # Build a docker container and push it to ECR so that it can be deployed to ECS.
           aws ecr get-login-password --region $AWS_REGION | docker login -u AWS --password-stdin $ECR_REGISTRY
