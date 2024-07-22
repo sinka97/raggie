@@ -8,7 +8,6 @@ from langchain_groq import ChatGroq
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_chroma import Chroma
 from langchain_google_community import GoogleSearchAPIWrapper
-from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain import hub
@@ -22,10 +21,6 @@ from langchain_experimental.text_splitter import SemanticChunker
 import streamlit as st
 from langgraph.checkpoint.sqlite import SqliteSaver
 
-
-load_dotenv()
-
-os.environ["GOOGLE_CSE_ID"] = os.getenv("GOOGLE_CSE_ID")
 
 model_name = "sentence-transformers/all-mpnet-base-v2" #"sentence-transformers/all-mpnet-base-v2, magorshunov/layoutlm-invoices"
 model_kwargs = {'device': 'cpu'}

@@ -1,9 +1,7 @@
 # ./.dockerignore
 # Ignore all files when COPY is run
-*
+./terraform
+./images
 
 # Un-ignore only these specific file so that when COPY
 # is run only these specific files are copied over
-!src/*
-!requirements.txt
-!src/.env
