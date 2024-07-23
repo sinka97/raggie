@@ -95,15 +95,19 @@ def generate(state, config, general_llm):
         generation = rag_chain.invoke({"context": documents, "question": question},config=config)
         return {"documents": documents, "question": question, "generation": generation}
     else: 
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", "Based on the given web search results, answer the user's question."),
-                ("human", "Web search results: \n\n {documents} \n\n User question: {question}"),
-            ]
-        )
-        chain = prompt | general_llm | StrOutputParser()
-        generation = chain.invoke({"documents": documents, "question": question},config=config)
-        return {"documents": documents, "question": question, "generation": generation}
+        if state['isQuestion'] == 'yes':
+            prompt = ChatPromptTemplate.from_messages(
+                [
+                    ("system", "Based on the given web search results, answer the user's question."),
+                    ("human", "Web search results: \n\n {documents} \n\n User question: {question}"),
+                ]
+            )
+            chain = prompt | general_llm | StrOutputParser()
+            generation = chain.invoke({"documents": documents, "question": question},config=config)
+            return {"documents": documents, "question": question, "generation": generation}
+        else:
+            generation = general_llm.invoke(question,config=config)
+            return {"question": question, "generation": generation}
 
 def grade_documents(state, config, llm):
     print("---CHECK DOCUMENT RELEVANCE TO QUESTION---")

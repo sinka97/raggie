@@ -26,7 +26,7 @@ disable_deploy_button()
 main_page_sidebar()
 
 ## START
-if 'llm_api_key' in st.session_state:
+if 'llm_api_key' in st.session_state and 'agent' not in st.session_state:
     llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", api_key=st.session_state['llm_api_key'], temperature=0.1)
     general_llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", api_key=st.session_state['llm_api_key'], temperature=0.1)
 
@@ -52,6 +52,7 @@ if 'llm_api_key' in st.session_state:
         },
     )
     # workflow.add_edge("transform_query", "web_search_node")
+    workflow.add_edge("general_answer", "generate")
     workflow.add_conditional_edges(
         "question_check",
         check_if_question,
@@ -65,6 +66,7 @@ if 'llm_api_key' in st.session_state:
 
     memory = SqliteSaver.from_conn_string(":memory:")
     st.session_state['agent'] = workflow.compile(checkpointer=memory) #create react agent
+    print("---AGENT CREATED---")
 
 # Initialize the conversation list in session state
 if 'conversation' not in st.session_state:
