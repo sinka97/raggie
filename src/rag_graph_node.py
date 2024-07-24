@@ -14,6 +14,7 @@ def question_check(state, config, llm):
     system = """You are a grader assessing whether the user is asking a question that requires more information from the internet or not. \n 
         If the user's input is a question you cannot answer with your current information, grade it as yes. \n
         If the user's input is question that can be answered with your current information, grade it as no. \n
+        If the user's input is not a question, grade it as no. \n
         Give a binary score 'yes' or 'no' score to indicate whether the input is a question that requires more information from the internet or not."""
     general_prompt = ChatPromptTemplate.from_messages(
         [
@@ -90,15 +91,19 @@ def generate(state, config, general_llm):
         generation = rag_chain.invoke({"context": documents, "question": question},config=config)
         return {"documents": documents, "question": question, "generation": generation}
     else: 
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", "Based on the given web search results, answer the user's question."),
-                ("human", "Web search results: \n\n {documents} \n\n User question: {question}"),
-            ]
-        )
-        chain = prompt | general_llm | StrOutputParser()
-        generation = chain.invoke({"documents": documents, "question": question},config=config)
-        return {"documents": documents, "question": question, "generation": generation}
+        if state['isQuestion'] == 'yes':
+            prompt = ChatPromptTemplate.from_messages(
+                [
+                    ("system", "Based on the given web search results, answer the user's question."),
+                    ("human", "Web search results: \n\n {documents} \n\n User question: {question}"),
+                ]
+            )
+            chain = prompt | general_llm | StrOutputParser()
+            generation = chain.invoke({"documents": documents, "question": question},config=config)
+            return {"documents": documents, "question": question, "generation": generation}
+        else:
+            generation = general_llm.invoke(question,config=config)
+            return {"question": question, "generation": generation}
 
 def grade_documents(state, config, llm):
     print("---CHECK DOCUMENT RELEVANCE TO QUESTION---")
