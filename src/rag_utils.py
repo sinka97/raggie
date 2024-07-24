@@ -49,6 +49,24 @@ def embed_and_store_document(chromadb_ip,file_name,collection_name,embed_fn):
     Chroma.from_documents(splits, client=client, collection_name=collection_name, embedding=embed_fn)
     return "success", f"Document stored to remote chromadb collection: {collection_name}."
 
+def embed_and_store_html(chromadb_ip,file_object,collection_name,embed_fn):
+    # Instantiate connection to client
+    client = chromadb.HttpClient( 
+        host=chromadb_ip, 
+        port=8000, 
+        ssl=False, 
+        settings=Settings(anonymized_telemetry=False)
+    )
+    # Check if connection is live
+    try:
+        client.heartbeat()
+    except Exception as e:
+        return "error", f"An unexpected error occurred: {e}"
+    text_splitter = SemanticChunker(embed_fn)
+    splits = text_splitter.split_documents(file_object)
+    Chroma.from_documents(splits, client=client, collection_name=collection_name, embedding=embed_fn)
+    return "success", f"Document stored to remote chromadb collection: {collection_name}."
+
 def load_col_from_chroma(chromadb_ip, collection_name, embed_fn):
     # Instantiate connection to client
     client = chromadb.HttpClient( 
