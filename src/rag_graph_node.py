@@ -15,6 +15,7 @@ def question_check(state, config, llm):
     system = """You are a grader assessing whether the user is asking a question that requires more information from the internet or not. \n 
         If the user's input is a question you cannot answer with your current information, grade it as yes. \n
         If the user's input is question that can be answered with your current information, grade it as no. \n
+        If the user's input is not a question, grade it as no. \n
         Give a binary score 'yes' or 'no' score to indicate whether the input is a question that requires more information from the internet or not."""
     general_prompt = ChatPromptTemplate.from_messages(
         [
