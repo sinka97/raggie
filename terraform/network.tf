@@ -61,7 +61,7 @@ resource "aws_route_table_association" "raggie_route_table_association" {
 
 resource "aws_security_group" "raggie_streamlit_sg" {
   name        = "raggie_streamlit_sg"
-  description = "Security group for ECS service"
+  description = "Security group for Streamlit Application"
   vpc_id      = aws_vpc.raggie_vpc.id
 
   ingress {
@@ -101,14 +101,36 @@ resource "aws_security_group" "raggie_streamlit_sg" {
 }
 
 resource "aws_security_group" "raggie_chromadb_sg" {
-  vpc_id = aws_vpc.raggie_vpc.id
+  name        = "raggie_chromadb_sg"
+  description = "Security group for ChromaDB"
+  vpc_id      = aws_vpc.raggie_vpc.id
 
   ingress {
-    protocol        = "tcp"
-    from_port       = 8000
-    to_port         = 8000
-    cidr_blocks     = [aws_subnet.raggie_public_subnet.cidr_block]
-    security_groups = [aws_security_group.raggie_streamlit_sg.id]
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8000
+    to_port     = 8000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -117,10 +139,4 @@ resource "aws_security_group" "raggie_chromadb_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  tags = {
-    Name = "Allow Traffic only from public subnet, on port 8000"
-  }
-
 }
-
