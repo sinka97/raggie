@@ -38,7 +38,7 @@ def main_page_sidebar():
                     submit_sheet_name = st.form_submit_button()
                     if submit_sheet_name:
                         st.write("Uploading Excel...please wait until it is completed.")
-                        temp_file = f"./{uploaded_file.name}.xlsx"
+                        temp_file = f"./{uploaded_file.name}"
                         with open(temp_file, "wb") as file:
                             file.write(uploaded_file.getvalue())
                         dfs = upload_excel(temp_file,sheet_name)
@@ -59,22 +59,22 @@ def main_page_sidebar():
                         embed_and_store_document(chromadb_ip,temp_file,col_name,embed_fn)
                         st.success(f"Embedding completed for: {uploaded_file.name}")
             elif uploaded_file.type == "text/html":
-                temp_file = f"./{uploaded_file.name}.xlsx"
+                temp_file = f"./{uploaded_file.name}"
                 with open(temp_file, "wb") as file:
                     file.write(uploaded_file.getvalue())
                 with st.form('html_upload'):
-                    unstructured_api_key = st.text_input("Enter Unstrucutred API Key")
-                    unstructured_api_url = st.text_input("Enter Unstructured API URL")
+                    unstructured_api_key = st.text_input("Enter Unstructured API Key")
                     col_name = st.text_input("Enter Collection Name")
                     submit_unstructured_api_details = st.form_submit_button()
                     if submit_unstructured_api_details:
                         html_file = UnstructuredAPIFileLoader(
                             file_path=temp_file,
                             api_key=unstructured_api_key,
-                            url=unstructured_api_url,
+                            url="https://api.unstructuredapp.io/general/v0/general",
                             mode="single"
                         ).load()
                         file_object = filter_complex_metadata(html_file)
+                        embed_fn = get_embedding_model(st.session_state["embedding_model_name"])
                         embed_and_store_html(chromadb_ip,file_object,col_name,embed_fn)
                         st.success(f"Embedding completed for: {uploaded_file.name}")
             else:
