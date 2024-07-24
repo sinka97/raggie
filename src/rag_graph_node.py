@@ -41,6 +41,7 @@ def retrieve(state, config, llm, general_llm, chromadb_ip, embed_fn, dfs):
     # Load documents
     monthly_report_retriever = load_col_from_chroma(chromadb_ip, "Monthly_Security_Reports", embed_fn).as_retriever()
     im8_retriever = load_col_from_chroma(chromadb_ip, "IM8", embed_fn).as_retriever()
+    others_retriever = load_col_from_chroma(chromadb_ip, "Others", embed_fn).as_retriever()
     # Load excel and initialize dataframe agent
     # TODO: replace excel file with correct file after everything is figured out
     # dfs = load_col_from_chroma(excel_file='excel_file',sheet_name='sheet_name')
@@ -75,6 +76,10 @@ def retrieve(state, config, llm, general_llm, chromadb_ip, embed_fn, dfs):
         documents = []
         documents.append(im8_retriever.invoke(question, config=config))
         print("---RETRIEVED IM8---")
+    elif qtype.questionType == "Others":
+        documents = []
+        documents.append(others_retriever.invoke(question, config=config))
+        print("---RETRIEVED OTHERS---")
     return {"documents": documents, "question": question}
 
 def generate(state, config, general_llm):
