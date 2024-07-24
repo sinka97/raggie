@@ -34,7 +34,6 @@ if 'llm_api_key' in st.session_state and st.session_state.llm_api_key != "" and 
     if 'dfs' in st.session_state:
         dfs = st.session_state.dfs
     else:
-        st.info("⭐")
         dfDict = pd.read_excel('./IT001-RPT.xlsx', sheet_name='IT001-Hardware')
         dfs = []
         dfs.append(dfDict)
