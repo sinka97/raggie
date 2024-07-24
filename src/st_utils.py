@@ -34,7 +34,11 @@ def main_page_sidebar():
                     sheet_name = st.text_input("Enter sheet name")
                     submit_sheet_name = st.form_submit_button()
                     if submit_sheet_name:
-                        dfs = upload_excel(uploaded_file,sheet_name)
+                        st.write("Uploading Excel...please wait until it is completed.")
+                        temp_file = f"./{uploaded_file.name}.xlsx"
+                        with open(temp_file, "wb") as file:
+                            file.write(uploaded_file.getvalue())
+                        dfs = upload_excel(temp_file,sheet_name)
                         st.write("Data preview:")
                         st.write(dfs[0].head())
                         st.session_state.dfs = dfs
