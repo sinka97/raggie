@@ -1,6 +1,6 @@
 """Streamlit page showing whatever is needed."""
 import streamlit as st
-from st_utils import add_sidebar, disable_deploy_button
+from st_utils import disable_deploy_button
 ####################
 #### STREAMLIT #####
 ####################
@@ -15,5 +15,4 @@ st.set_page_config(
 )
 st.title("📌 How to use Raggie")
 
-add_sidebar()
 disable_deploy_button()

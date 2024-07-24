@@ -13,7 +13,8 @@ resource "aws_instance" "raggie_chromadb" {
   instance_type               = "t3.micro"
   ebs_optimized               = true
   subnet_id                   = aws_subnet.raggie_public_subnet.id
-  vpc_security_group_ids      = [aws_security_group.raggie_chromadb_sg.id]
+  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
+  vpc_security_group_ids      = [aws_security_group.raggie_streamlit_sg.id]
   availability_zone           = "us-east-1a"
   associate_public_ip_address = true
   ebs_block_device {

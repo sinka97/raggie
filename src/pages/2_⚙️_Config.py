@@ -1,6 +1,10 @@
 """Streamlit page showing whatever is needed."""
 import streamlit as st
-from st_utils import add_sidebar, disable_deploy_button
+from st_utils import config_sidebar, disable_deploy_button, store_configurations
+
+import chromadb
+from chromadb.config import Settings
+
 ####################
 #### STREAMLIT #####
 ####################
@@ -15,20 +19,57 @@ st.set_page_config(
 st.title("⚙️ Configurations")
 
 disable_deploy_button()
-add_sidebar()
+config_sidebar()
 
-# User inputs for configuration
-chromadb_ip = st.text_input("ChromaDB IP", "Enter the IP Address of ChromaDB Instance")
-# TODO: Add additional embedding model support
-options = ["sentence-transformers/all-mpnet-base-v2", "for future implementation"]
-embedding_model_name = st.selectbox("Choose an option:", options)
-# LLM API KEY
-LLM_API_Token = st.text_input('LLM API Token', type='password')
+# Initialize session state keys if they don't exist
+if "chromadb_ip" not in st.session_state:
+    st.session_state["chromadb_ip"] = ""
 
-# Save configurations to session state
-st.session_state.chromadb_ip = chromadb_ip
-st.session_state.embedding_model_name = embedding_model_name
-st.session_state['llm_api_key']= LLM_API_Token
+if "embedding_model_name" not in st.session_state:
+    st.session_state["embedding_model_name"] = "sentence-transformers/all-mpnet-base-v2"
 
-if st.button("Save Configuration"):
-    st.success("Configuration saved!")
+if "llm_api_key" not in st.session_state:
+    st.session_state["llm_api_key"] = ""
+
+with st.form('config'):
+    # User inputs for configuration
+    chromadb_ip = st.text_input(
+        "ChromaDB IP",
+        value=st.session_state["chromadb_ip"] if st.session_state["chromadb_ip"] else "Enter the IP Address of ChromaDB Instance",
+        key='_chromadb_ip'
+    )
+    
+    # TODO: Add additional embedding model support
+    options = ["sentence-transformers/all-mpnet-base-v2", "for future implementation"]
+    embedding_model_name = st.selectbox(
+        "Choose an option:",
+        options,
+        key='_embedding_model_name',
+        index=options.index(st.session_state["embedding_model_name"])
+    )
+    
+    # LLM API KEY
+    llm_api_key = st.text_input(
+        'LLM API Token',
+        value=st.session_state["llm_api_key"] if st.session_state["llm_api_key"] else "Enter your API Key",
+        type='password',
+        key="_llm_api_key"
+    )
+    
+    submitted = st.form_submit_button("Save Configuration", on_click=store_configurations)
+    if submitted:
+        # Instantiate connection to client
+        client = chromadb.HttpClient( 
+            host=chromadb_ip, 
+            port=8000, 
+            ssl=False,
+            settings=Settings(anonymized_telemetry=False)
+        )
+        # Check if connection is live
+        try:
+            client.heartbeat()
+            st.success("Configuration saved!")
+        except Exception as e:
+            st.error(f"An unexpected error occurred: {e}")
+            
+        

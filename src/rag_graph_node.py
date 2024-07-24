@@ -1,6 +1,5 @@
 import streamlit as st
 from langchain import hub
-from langchain_anthropic import ChatAnthropic
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.tools import Tool
@@ -8,7 +7,7 @@ from langchain_experimental.agents import create_pandas_dataframe_agent
 from langchain_google_community import GoogleSearchAPIWrapper
 
 from rag_data_model import QuestionType, GradeQuestion
-from rag_utils import load_document, load_excel
+from rag_utils import load_col_from_chroma, upload_excel
 
 def question_check(state, config, llm):
     # Prompt
@@ -35,20 +34,16 @@ def question_check(state, config, llm):
         print("---GRADE: NOT QUESTION---")
         return {"question": question, "isQuestion": "no"}
 
-def retrieve(state, config, llm, general_llm):
+def retrieve(state, config, llm, general_llm, chromadb_ip, embed_fn, dfs):
     print("---RETRIEVE---")
     # Fetch Question from Graph State
     question = state["question"]
-    # Fetch configurations from Streamlit Session State
-    chromadb_ip = st.session_state["chromadb_ip"]
-    embed_fn = st.session_state["embed_fn"]
-
     # Load documents
-    monthly_report_retriever = load_document(chromadb_ip, "Monthly_Security_Reports", embed_fn).as_retriever()
-    im8_retriever = load_document(chromadb_ip, "IM8", embed_fn).as_retriever()
+    monthly_report_retriever = load_col_from_chroma(chromadb_ip, "Monthly_Security_Reports", embed_fn).as_retriever()
+    im8_retriever = load_col_from_chroma(chromadb_ip, "IM8", embed_fn).as_retriever()
     # Load excel and initialize dataframe agent
     # TODO: replace excel file with correct file after everything is figured out
-    dfs = load_excel(excel_file='excel_file',sheet_name='sheet_name')
+    # dfs = load_col_from_chroma(excel_file='excel_file',sheet_name='sheet_name')
     dfAgent = create_pandas_dataframe_agent(general_llm, dfs, agent_type="tool-calling", verbose=True,allow_dangerous_code=True)
  
     # Prompt
