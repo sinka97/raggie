@@ -1,6 +1,6 @@
 """Streamlit utils."""
 import uuid
-
+import os
 import streamlit as st
 from streamlit_pdf_viewer import pdf_viewer
 from langchain_community.document_loaders import UnstructuredAPIFileLoader
@@ -97,4 +97,5 @@ def store_configurations():
     st.session_state["chromadb_ip"] = st.session_state.get('_chromadb_ip', "")
     st.session_state["embedding_model_name"] = st.session_state.get('_embedding_model_name', "")
     st.session_state["llm_api_key"] = st.session_state.get('_llm_api_key', "")
+    st.session_state["google_api_key"] = st.session_state.get('_google_api_key', "")
     return "success"
