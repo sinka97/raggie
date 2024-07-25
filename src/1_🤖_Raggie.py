@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from langgraph.graph import END, StateGraph
 from langchain_anthropic import ChatAnthropic
@@ -40,6 +41,7 @@ if 'llm_api_key' in st.session_state and st.session_state.llm_api_key != "" and 
 
     llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", api_key=st.session_state['llm_api_key'], temperature=0.1)
     general_llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", api_key=st.session_state['llm_api_key'], temperature=0.1)
+    os.environ["GOOGLE_API_KEY"] = st.session_state["google_api_key"]
 
     workflow = StateGraph(GraphState)
     # Define the nodes

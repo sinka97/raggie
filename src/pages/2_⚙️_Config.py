@@ -31,6 +31,9 @@ if "embedding_model_name" not in st.session_state:
 if "llm_api_key" not in st.session_state:
     st.session_state["llm_api_key"] = ""
 
+if "google_api_key" not in st.session_state:
+    st.session_state["google_api_key"] = ""
+
 with st.form('config'):
     # User inputs for configuration
     chromadb_ip = st.text_input(
@@ -54,6 +57,13 @@ with st.form('config'):
         value=st.session_state["llm_api_key"] if st.session_state["llm_api_key"] else "Enter your API Key",
         type='password',
         key="_llm_api_key"
+    )
+
+    google_api_key = st.text_input(
+        'Google API Key',
+        value=st.session_state["google_api_key"] if st.session_state["google_api_key"] else "Enter your API Key",
+        type='password',
+        key="_google_api_key"
     )
     
     submitted = st.form_submit_button("Save Configuration", on_click=store_configurations)
