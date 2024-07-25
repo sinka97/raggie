@@ -154,7 +154,7 @@ def grade_documents(state, config, llm):
         web_search = "no"
     return {"documents": filtered_docs, "question": question, "web_search": web_search}
 
-def web_search(state, config):
+def web_search(state, config, general_llm):
     print("---WEB SEARCH---")
     question = state["question"]
     documents = state["documents"]
@@ -166,8 +166,15 @@ def web_search(state, config):
         description="Search Google for recent results.",
         func=search.run,
     )
-
-    web_results = search_tool.invoke({"query": question},config=config)
+    prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", "Reformat the User's question to make it more optimized for web searching. Return ONLY the reformatted question and nothing else."),
+                ("human", "User's question: {question}"),
+            ]
+        )
+    chain = prompt | general_llm
+    web_query = chain.invoke({'question':question},config=config)
+    web_results = search_tool.invoke({"query": web_query.content},config=config)
     documents.append(web_results)
 
     return {"documents": documents, "question": question}
