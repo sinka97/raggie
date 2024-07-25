@@ -65,6 +65,13 @@ with st.form('config'):
         type='password',
         key="_google_api_key"
     )
+
+    google_cse_id = st.text_input(
+        'Google API Key',
+        value=st.session_state["google_cse_id"] if st.session_state["google_cse_id"] else "Enter your CSE ID",
+        type='password',
+        key="_google_cse_id"
+    )
     
     submitted = st.form_submit_button("Save Configuration", on_click=store_configurations)
     if submitted:
