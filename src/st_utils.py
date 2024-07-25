@@ -98,4 +98,5 @@ def store_configurations():
     st.session_state["embedding_model_name"] = st.session_state.get('_embedding_model_name', "")
     st.session_state["llm_api_key"] = st.session_state.get('_llm_api_key', "")
     st.session_state["google_api_key"] = st.session_state.get('_google_api_key', "")
+    st.session_state["google_cse_id"] = st.session_state.get('_google_cse_id', "")
     return "success"

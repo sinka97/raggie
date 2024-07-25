@@ -34,6 +34,9 @@ if "llm_api_key" not in st.session_state:
 if "google_api_key" not in st.session_state:
     st.session_state["google_api_key"] = ""
 
+if "google_cse_id" not in st.session_state:
+    st.session_state["google_cse_id"] = ""
+
 with st.form('config'):
     # User inputs for configuration
     chromadb_ip = st.text_input(
@@ -64,6 +67,13 @@ with st.form('config'):
         value=st.session_state["google_api_key"] if st.session_state["google_api_key"] else "Enter your API Key",
         type='password',
         key="_google_api_key"
+    )
+
+    google_cse_id = st.text_input(
+        'Google CSE ID',
+        value=st.session_state["google_cse_id"] if st.session_state["google_cse_id"] else "Enter your CSE ID",
+        type='password',
+        key="_google_cse_id"
     )
     
     submitted = st.form_submit_button("Save Configuration", on_click=store_configurations)
