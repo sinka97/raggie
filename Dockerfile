@@ -9,6 +9,7 @@ RUN apt-get update && \
     apt-get install curl --no-install-recommends -y && \
     apt-get install sqlite3 --no-install-recommends -y && \
     apt-get install libsqlite3-dev --no-install-recommends -y && \
+    apt-get install libsm6 libxext6 ffmpeg libfontconfig1 libxrender1 libgl1-mesa-glx -y && \
     pip install --upgrade pip && \
     pip install -r requirements.txt && \
     pip install pysqlite3-binary
