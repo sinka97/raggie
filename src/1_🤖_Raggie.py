@@ -48,7 +48,7 @@ if 'llm_api_key' in st.session_state and st.session_state.llm_api_key != "" and 
     workflow.add_node("retrieve", lambda state,config: retrieve(state,config,llm,general_llm,chromadb_ip,embed_fn, dfs))
     workflow.add_node("grade_documents", lambda state,config: grade_documents(state,config,llm))
     workflow.add_node("generate", lambda state,config: generate(state,config,general_llm))
-    workflow.add_node("web_search_node", web_search)
+    workflow.add_node("web_search_node", lambda state,config: web_search(state,config,general_llm))
     workflow.add_node("general_answer", lambda state,config: general_answer(state,config,llm))
     workflow.add_node("question_check", lambda state,config: question_check(state,config,llm))
 
