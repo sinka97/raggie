@@ -39,8 +39,8 @@ if 'llm_api_key' in st.session_state and st.session_state.llm_api_key != "" and 
         dfs = []
         dfs.append(dfDict)
 
-    llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", api_key=st.session_state['llm_api_key'], temperature=0.1)
-    general_llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", api_key=st.session_state['llm_api_key'], temperature=0.1)
+    llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", api_key=st.session_state['llm_api_key'], temperature=0.0)
+    general_llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", api_key=st.session_state['llm_api_key'], temperature=0.0)
     os.environ["GOOGLE_API_KEY"] = st.session_state["google_api_key"]
     os.environ["GOOGLE_CSE_ID"] = st.session_state["google_cse_id"]
 
